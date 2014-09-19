@@ -60,16 +60,21 @@ if (typeof Object.create !== "function") {
                 $.getJSON(url, getData);
 
             //TA    
-            }else if(typeof base.options.jsonPath === "object") {            
-                var jsonContent='';
-                var jsonData = base.options.jsonPath.owl;
-                for (i in jsonData) {
-                    if (jsonData.hasOwnProperty(i)) {
-                        console.log(jsonData[i].item);
-                        jsonContent += jsonData[i].item;
+            }else if(typeof base.options.jsonPath === "object") { 
+                if (typeof base.options.jsonSuccess === "function") {
+                    base.options.jsonSuccess.apply(this, base.options.jsonPath.owl);
+                } else {
+
+                    var jsonContent='';
+                    var jsonData = base.options.jsonPath.owl;
+                    for (i in jsonData) {
+                        if (jsonData.hasOwnProperty(i)) {
+                            console.log(jsonData[i].item);
+                            jsonContent += jsonData[i].item;
+                        }
                     }
+                    base.$elem.html(jsonContent);
                 }
-                base.$elem.html(jsonContent);
                 base.logIn();
                 //TA ENDS
 
