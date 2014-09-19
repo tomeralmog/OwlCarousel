@@ -5,6 +5,7 @@
  *  http://www.owlgraphic.com/owlcarousel/
  *
  *  Licensed under MIT
+ *  Updated by Tomer Almog to accept JSON Objects
  *
  */
 
@@ -34,7 +35,7 @@ if (typeof Object.create !== "function") {
 
         loadContent : function () {
             var base = this, url;
-
+            
             function getData(data) {
                 var i, content = "";
                 if (typeof base.options.jsonSuccess === "function") {
@@ -53,10 +54,25 @@ if (typeof Object.create !== "function") {
             if (typeof base.options.beforeInit === "function") {
                 base.options.beforeInit.apply(this, [base.$elem]);
             }
-
+            
             if (typeof base.options.jsonPath === "string") {
                 url = base.options.jsonPath;
                 $.getJSON(url, getData);
+
+            //TA    
+            }else if(typeof base.options.jsonPath === "object") {            
+                var jsonContent='';
+                var jsonData = base.options.jsonPath.owl;
+                for (i in jsonData) {
+                    if (jsonData.hasOwnProperty(i)) {
+                        console.log(jsonData[i].item);
+                        jsonContent += jsonData[i].item;
+                    }
+                }
+                base.$elem.html(jsonContent);
+                base.logIn();
+                //TA ENDS
+
             } else {
                 base.logIn();
             }
@@ -65,10 +81,8 @@ if (typeof Object.create !== "function") {
         logIn : function () {
             var base = this;
 
-            base.$elem.data({
-                "owl-originalStyles": base.$elem.attr("style"),
-                "owl-originalClasses": base.$elem.attr("class")
-            });
+            base.$elem.data("owl-originalStyles", base.$elem.attr("style"));
+            base.$elem.data("owl-originalClasses", base.$elem.attr("class"));
 
             base.$elem.css({opacity: 0});
             base.orignalItems = base.options.items;
@@ -1165,9 +1179,7 @@ if (typeof Object.create !== "function") {
                     follow = true;
                 }
                 if (follow && itemNumber < base.currentItem + base.options.items && $lazyImg.length) {
-                    $lazyImg.each(function() {
-                        base.lazyPreload($item, $(this));
-                    });
+                    base.lazyPreload($item, $lazyImg);
                 }
             }
         },
@@ -1375,10 +1387,9 @@ if (typeof Object.create !== "function") {
                 }
             }
             base.clearEvents();
-            base.$elem.attr({
-                style: base.$elem.data("owl-originalStyles") || "",
-                class: base.$elem.data("owl-originalClasses")
-            });
+            base.$elem
+                .attr("style", base.$elem.data("owl-originalStyles") || "")
+                .attr("class", base.$elem.data("owl-originalClasses"));
         },
 
         destroy : function () {
